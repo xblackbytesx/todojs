@@ -9,6 +9,18 @@ var todoItems = [
     {
         id: 0,
         text: 'Existing item'
+    },
+    {
+        id: 1,
+        text: 'Existing item 2'
+    },
+    {
+        id: 2,
+        text: 'Existing item 3'
+    },
+    {
+        id: 3,
+        text: 'Existing item 4'
     }
 ];
 
@@ -18,6 +30,7 @@ function getRandomInt(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
 }
+
 
 // Add new items to array
 function addTodoItem(newItem) {
@@ -31,6 +44,7 @@ function addTodoItem(newItem) {
     appendTodoItems();
 }
 
+
 // Remove items from array
 function removeTodoItem(itemId) {
 
@@ -42,6 +56,7 @@ function removeTodoItem(itemId) {
 
     appendTodoItems();
 }
+
 
 // Edit items inline
 function editTodoItem(itemId) {
@@ -55,6 +70,7 @@ function editTodoItem(itemId) {
     appendTodoItems();
 }
 
+
 // Event listeners
 addButton.addEventListener('click', function(){
     var inputValue = inputField.value;
@@ -64,6 +80,7 @@ addButton.addEventListener('click', function(){
     }
 });
 
+
 function createTodoItem(todoItem) {
 
     var article = document.createElement('article');
@@ -72,14 +89,16 @@ function createTodoItem(todoItem) {
     var taskName = document.createElement('h1');
     taskName.textContent = todoItem.text;
 
-    taskName.addEventListener('click', function(){
+    taskName.addEventListener('click', function() {
         var textarea = document.createElement('textarea');
         var currentContent = taskName.textContent;
-
         textarea.textContent = currentContent;
-        this.replaceWith(textarea);;
 
-        // editTodoItem(todoItem.id);
+        engageEditMode(textarea, taskName);
+
+        textarea.addEventListener('blur', function() {
+            closeEditMode(textarea, taskName);
+        });
     });
 
     // Item tools wrapper
@@ -96,25 +115,29 @@ function createTodoItem(todoItem) {
         removeTodoItem(todoItem.id);
     });
 
-    // // Edit button
-    // var editButton = document.createElement('span');
-    // editButton.className = 'edit-item';
-    // editButton.setAttribute('todo-item', todoItem.id);
-    // editButton.textContent = 'Edit';
-    //
-    // editButton.addEventListener('click', function(){
-    //     var editableText = $("<textarea />");
-    //
-    //     editTodoItem(todoItem.id);
-    // });
-
-    // itemTools.appendChild(editButton);
     itemTools.appendChild(deleteButton);
 
     article.appendChild(taskName);
     article.appendChild(itemTools);
 
     return article;
+}
+
+
+function engageEditMode(textarea, taskName) {
+    taskName.replaceWith(textarea);
+    textarea.focus();
+}
+
+
+function closeEditMode(textarea, taskName) {
+    textarea.replaceWith(taskName);
+    saveEdit(taskName);
+}
+
+
+function saveEdit(taskName) {
+    console.log('saved');
 }
 
 function appendTodoItems() {
