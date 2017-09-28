@@ -180,7 +180,7 @@ function appendTodoItems() {
         todoItems.forEach(item => article.appendChild(createTodoItem(item)));
     }
     else {
-        article.innerText = 'Looks like you have nothing to do today! Go have a beer :-)';
+        article.innerText = 'Looks like you have nothing to do today! Go grab a Coke :-)';
     }
 
     while (list.firstChild) {
