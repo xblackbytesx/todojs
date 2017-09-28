@@ -43,6 +43,7 @@ function removeTodoItem(itemId) {
         }
     })
 
+    saveToLocalStorage();
     appendTodoItems();
 }
 
@@ -121,7 +122,6 @@ function createTodoItem(todoItem) {
         engageEditMode(taskName);
 
         taskName.addEventListener('blur', function() {
-            debugger;
             saveEdit(taskName);
         });
     });
