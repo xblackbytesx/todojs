@@ -5,12 +5,13 @@ var inputField = document.getElementById('text');
 var list = document.getElementById("list");
 
 // Data store
-var todoItems = [];
+var todoItems = {};
 
 function saveToLocalStorage() {
-    localStorage.setItem("todoItems", JSON.stringify(todoItems));
-    var items = JSON.parse(localStorage.todoItems);
-    console.log(localStorage.getItem("todoItems"));
+    // Store the objects into local storage.
+
+    localStorage.setItem("thingsToDo", JSON.stringify(todoItems));
+    console.log(localStorage.getItem("thingsToDo"));
 }
 
 // Get random number
@@ -22,9 +23,8 @@ function getRandomInt(min, max) {
 
 // Add new items to array
 function addTodoItem(newItem) {
-    todoItems.push(
+    todoItems[getRandomInt(1,200)] = (
         {
-            id: getRandomInt(1,200),
             text: newItem
         }
     );
@@ -37,11 +37,7 @@ function addTodoItem(newItem) {
 // Remove items from array
 function removeTodoItem(itemId) {
 
-    todoItems = todoItems.filter(function(todoItem) {
-        if(todoItem.id !== itemId) {
-            return todoItem;
-        }
-    })
+    delete todoItems[itemId];
 
     saveToLocalStorage();
     appendTodoItems();
@@ -51,17 +47,11 @@ function removeTodoItem(itemId) {
 // Edit items inline
 function editTodoItem(itemId) {
 
-    todoItems = todoItems.filter(function(todoItem) {
-        if(todoItem.id !== itemId) {
-            return todoItem;
-        } else {
-            todoItems.push({
+    todoItems[itemId] = {
                 id: 2,
                 text: Blaat,
                 completed: true
-            })
-        }
-    })
+        };
 
     appendTodoItems();
 }
@@ -78,11 +68,8 @@ function markItemCompleted(article, itemId) {
     //     completed: false
     // })
 
-
-    for (var x = 0; x < todoItems.length; x++) {
-        if (todoItems.hasOwnProperty('text')) {
-            todoItems.text = false;
-        }
+    if(todoItems[itemId]) {
+        todoItems[itemId].completed = false;
     }
 
     appendTodoItems();
@@ -106,7 +93,7 @@ inputField.addEventListener('keypress', function(e){
 });
 
 
-function createTodoItem(todoItem) {
+function createTodoItem(todoItem, key) {
 
     var article = document.createElement('article');
 
@@ -133,22 +120,22 @@ function createTodoItem(todoItem) {
     // Delete button
     var deleteButton = document.createElement('span');
     deleteButton.className = 'remove-item';
-    deleteButton.setAttribute('todo-item', todoItem.id);
+    deleteButton.setAttribute('todo-item', key);
     deleteButton.textContent = 'X';
 
     deleteButton.addEventListener('click', function(){
-        removeTodoItem(todoItem.id);
+        removeTodoItem(key);
     });
 
     // Done button
     var doneButton = document.createElement('span');
     doneButton.className = 'complete-item';
-    doneButton.setAttribute('todo-item', todoItem.id);
+    doneButton.setAttribute('todo-item', key);
     doneButton.textContent = 'V';
 
     doneButton.addEventListener('click keyup', function(){
 
-        markItemCompleted(article, todoItem.id);
+        markItemCompleted(article, key);
     });
 
     itemTools.appendChild(deleteButton);
@@ -162,9 +149,7 @@ function createTodoItem(todoItem) {
 
 
 function engageEditMode(taskName) {
-    // taskName.replaceWith(textarea);
     taskName.setAttribute('contenteditable', 'true');
-    // textarea.focus();
 }
 
 function saveEdit(taskName) {
@@ -174,10 +159,10 @@ function saveEdit(taskName) {
 function appendTodoItems() {
     var article = document.createElement('div');
 
-    todoItems = JSON.parse(localStorage.getItem("todoItems")) || todoItems;
+    thingsToDo = JSON.parse(localStorage.getItem("thingsToDo")) || todoItems;
 
-    if(todoItems.length > 0) {
-        todoItems.forEach(item => article.appendChild(createTodoItem(item)));
+    if(Object.keys(thingsToDo).length > 0) {
+        Object.keys(thingsToDo).forEach((key) => article.appendChild(createTodoItem(thingsToDo[key], key)));
     }
     else {
         article.innerText = 'Looks like you have nothing to do today! Go grab a Coke :-)';
