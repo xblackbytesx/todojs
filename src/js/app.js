@@ -30,9 +30,9 @@ function addTodoItem(newItem) {
 
 
 // Remove items from array
-function removeTodoItem(itemId) {
-
-    delete todoItems[itemId];
+function removeTodoItem(key) {
+    delete todoItems[key];
+    console.log('Removed ' + key);
 
     saveToLocalStorage();
     appendTodoItems();
@@ -40,10 +40,8 @@ function removeTodoItem(itemId) {
 
 // Mark item as completed
 function markItemCompleted(key) {
-
-    console.log('Marked ' + key + ' as done!');
-
     todoItems[key].completed = true;
+    console.log('Marked ' + key + ' as done!');
 
     saveToLocalStorage();
     appendTodoItems();
@@ -148,13 +146,8 @@ function engageEditMode(taskName) {
 
 
 function saveEdit(taskName, key) {
+    todoItems[key].text = taskName.textContent
     console.log('saved ' + key);
-
-    todoItems[key] = (
-        {
-            text: taskName.textContent
-        }
-    );
 
     saveToLocalStorage();
     appendTodoItems();
