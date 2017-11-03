@@ -5,7 +5,7 @@ var inputField = document.getElementById('text');
 var list = document.getElementById("list");
 
 // Data store
-var todoItems = {};
+var todoItems = JSON.parse(localStorage.getItem("thingsToDo")) || {};
 
 function saveToLocalStorage() {
     // Store the objects into local storage.
@@ -14,16 +14,11 @@ function saveToLocalStorage() {
     console.log(localStorage.getItem("thingsToDo"));
 }
 
-// Get random number
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
 // Add new items to array
 function addTodoItem(newItem) {
-    todoItems[getRandomInt(1,200)] = (
+    var uniqueId = Date.now();
+
+    todoItems[uniqueId] = (
         {
             text: newItem
         }
@@ -43,35 +38,14 @@ function removeTodoItem(itemId) {
     appendTodoItems();
 }
 
-
-// Edit items inline
-function editTodoItem(itemId) {
-
-    todoItems[itemId] = {
-                id: 2,
-                text: Blaat,
-                completed: true
-        };
-
-    appendTodoItems();
-}
-
-
 // Mark item as completed
-function markItemCompleted(article, itemId) {
+function markItemCompleted(key) {
 
-    // article.className = 'completed';
+    console.log('Marked ' + key + ' as done!');
 
-    // todoItems.push({
-    //     id: 2,
-    //     text: 'Blaat',
-    //     completed: false
-    // })
+    todoItems[key].completed = true;
 
-    if(todoItems[itemId]) {
-        todoItems[itemId].completed = false;
-    }
-
+    saveToLocalStorage();
     appendTodoItems();
 }
 
@@ -80,6 +54,7 @@ function validateInput(inputValue) {
         addTodoItem(inputValue);
     }
 }
+
 
 // Event listeners
 addButton.addEventListener('click', function(){
@@ -93,14 +68,7 @@ inputField.addEventListener('keypress', function(e){
 });
 
 
-function createTodoItem(todoItem, key) {
-
-    var article = document.createElement('article');
-
-    if(todoItem.completed !== undefined && todoItem.completed !== '' && todoItem.completed === true) {
-        article.className = 'completed';
-    }
-
+function createTaskName(article, todoItem, key) {
     // Task name
     var taskName = document.createElement('h1');
     taskName.textContent = todoItem.text;
@@ -109,14 +77,15 @@ function createTodoItem(todoItem, key) {
         engageEditMode(taskName);
 
         taskName.addEventListener('blur', function() {
-            saveEdit(taskName);
+            saveEdit(taskName, key);
         });
     });
 
-    // Item tools wrapper
-    var itemTools = document.createElement('span');
-    itemTools.className = 'item-tools';
+    article.appendChild(taskName);
+}
 
+
+function createDeleteButton(itemTools, key) {
     // Delete button
     var deleteButton = document.createElement('span');
     deleteButton.className = 'remove-item';
@@ -127,22 +96,47 @@ function createTodoItem(todoItem, key) {
         removeTodoItem(key);
     });
 
+    itemTools.appendChild(deleteButton);
+}
+
+function createDoneButton(itemTools, key) {
     // Done button
     var doneButton = document.createElement('span');
     doneButton.className = 'complete-item';
     doneButton.setAttribute('todo-item', key);
     doneButton.textContent = 'V';
 
-    doneButton.addEventListener('click keyup', function(){
+    doneButton.addEventListener('click', function(){
 
-        markItemCompleted(article, key);
+        markItemCompleted(key);
     });
 
-    itemTools.appendChild(deleteButton);
     itemTools.appendChild(doneButton);
+}
 
-    article.appendChild(taskName);
+
+function createTaskTools(article, key) {
+    // Item tools wrapper
+    var itemTools = document.createElement('span');
+    itemTools.className = 'item-tools';
+
+    createDeleteButton(itemTools, key);
+    createDoneButton(itemTools, key);
+
     article.appendChild(itemTools);
+}
+
+
+function createTodoItem(todoItem, key) {
+
+    var article = document.createElement('article');
+
+    if(todoItem.completed !== undefined && todoItem.completed !== '' && todoItem.completed === true) {
+        article.className = 'completed';
+    }
+
+    createTaskName(article, todoItem, key);
+    createTaskTools(article, key);
 
     return article;
 }
@@ -152,27 +146,36 @@ function engageEditMode(taskName) {
     taskName.setAttribute('contenteditable', 'true');
 }
 
-function saveEdit(taskName) {
-    console.log('saved');
+
+function saveEdit(taskName, key) {
+    console.log('saved ' + key);
+
+    todoItems[key] = (
+        {
+            text: taskName.textContent
+        }
+    );
+
+    saveToLocalStorage();
+    appendTodoItems();
 }
 
+
 function appendTodoItems() {
-    var article = document.createElement('div');
+    var taskWrapper = document.createElement('div');
 
-    thingsToDo = JSON.parse(localStorage.getItem("thingsToDo")) || todoItems;
-
-    if(Object.keys(thingsToDo).length > 0) {
-        Object.keys(thingsToDo).forEach((key) => article.appendChild(createTodoItem(thingsToDo[key], key)));
+    if(Object.keys(todoItems).length > 0) {
+        Object.keys(todoItems).forEach((key) => taskWrapper.appendChild(createTodoItem(todoItems[key], key)));
     }
     else {
-        article.innerText = 'Looks like you have nothing to do today! Go grab a Coke :-)';
+        taskWrapper.innerText = 'Looks like you have nothing to do today! Go grab a Coke :-)';
     }
 
     while (list.firstChild) {
         list.removeChild(list.firstChild);
     }
 
-    list.appendChild(article);
+    list.appendChild(taskWrapper);
 }
 
 appendTodoItems();

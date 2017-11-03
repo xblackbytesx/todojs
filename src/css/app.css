@@ -90,6 +90,11 @@ button {
     cursor: text;
 }
 
+#list article.completed h1 {
+    text-decoration: line-through;
+    color: #DDD;
+}
+
 #list article .item-tools {
     visibility: hidden;
     position: absolute;
